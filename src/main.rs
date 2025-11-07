@@ -1,0 +1,44 @@
+use axum::{serve, Router};
+use dotenvy::dotenv;
+use std::net::SocketAddr;
+use tower_http::cors::{Any, CorsLayer};
+use tracing_subscriber;
+
+mod db;
+mod models;
+mod repository;
+mod services;
+mod controllers;
+mod routes;
+mod utils;
+
+use routes::download_routes::create_download_routes;
+use crate::db::init_db;
+
+#[tokio::main]
+async fn main() {
+    // Initialize logging
+    tracing_subscriber::fmt::init();
+    dotenv().ok();
+
+    // Connect to the database
+    let pool = init_db().await.expect("Failed to connect to DB");
+
+    // Enable CORS so React (on port 5173) can call your backend
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(Any)
+        .allow_headers(Any);
+
+    // Build your application routes and apply CORS
+    let app = create_download_routes(pool).layer(cors);
+
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    println!("Server running at http://{}", addr);
+    
+    let listener = tokio::net::TcpListener::bind(addr)
+        .await
+        .expect("Failed to bind to address");
+
+    serve(listener, app).await.expect("Server failed");
+}

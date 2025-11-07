@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Download Students</title>
+</head>
+<body>
+    <h1>Download Students Table</h1>
+    <select id="fileType">
+      <option value="csv">CSV</option>
+      <option value="json">JSON</option>
+      <option value="xlsx">Excel</option>
+    </select>
+    <button id="downloadBtn">Download</button>
+
+    <script>
+    document.getElementById('downloadBtn').addEventListener('click', async () => {
+      const fileType = document.getElementById('fileType').value;
+      const response = await fetch(`/download?type=${fileType}`);
+      if (!response.ok) return alert('Download failed');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `students.${fileType === 'xlsx' ? 'xlsx' : fileType}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
+    </script>
+</body>
+</html>
