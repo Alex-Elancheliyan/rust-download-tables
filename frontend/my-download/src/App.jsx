@@ -11,9 +11,14 @@ function App() {
       if (!res.ok) throw new Error(`Server error ${res.status}`);
 
       const blob = await res.blob();
-      const fileName = fileType === "csv" ? "data.csv" : "data.xlsx";
 
-      // trigger browser download
+      const fileName =
+        fileType === "csv"
+          ? "data.csv"
+          : fileType === "xlsx"
+          ? "data.xlsx"
+          : "data.pdf";
+
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = fileName;
@@ -36,6 +41,7 @@ function App() {
       >
         <option value="csv">CSV</option>
         <option value="xlsx">XLSX</option>
+        <option value="pdf">PDF</option>
       </select>
 
       <button onClick={handleDownload} style={{ padding: "6px 12px" }}>
