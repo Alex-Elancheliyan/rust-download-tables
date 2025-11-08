@@ -17,20 +17,20 @@ use crate::db::init_db;
 
 #[tokio::main]
 async fn main() {
-    // Initialize logging
+    
     tracing_subscriber::fmt::init();
     dotenv().ok();
 
-    // Connect to the database
+    
     let pool = init_db().await.expect("Failed to connect to DB");
 
-    // Enable CORS so React (on port 5173) can call your backend
+    
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods(Any)
         .allow_headers(Any);
 
-    // Build your application routes and apply CORS
+    
     let app = create_download_routes(pool).layer(cors);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
